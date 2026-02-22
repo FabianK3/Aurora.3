@@ -1,19 +1,19 @@
 # SQL
 
-This sub directory contains the required SQL files that are needed for setting
-up and updating a SQL database to be connected to the game. For nearly every
+This subdirectory contains the required SQL files that are needed for setting
+up and updating a SQL database connected to the game. For nearly all
 local development a database isn't necessary, but some of the games features
 require it.
 
-Database management and/or development is a whole thing on its own. If you have
+Database management and/or development is a whole field on its own. If you have
 trouble, don't hesitate to ask a developer for assistance, specifically the
 people listed as code owners for the SQL directory.
 
-## Prerequisits
+## Prerequisite
 
-The production database is a MariaDB. Feature parity is no longer given to
+The production database is a MariaDB. Feature parity is no longer guaranteed for
 other SQL servers and requires that all SQL is tested on a MariaDB instance.
-If this is not done, migrations could fail and result in dataloss or corruption.
+If this is not done, migrations could fail and result in data loss or corruption.
 
 For applying migrations [Flyway by Redgate](https://github.com/flyway/flyway)
 is used. It's a tool to automatically apply SQL scripts to a database server
@@ -24,7 +24,7 @@ In order to develop for the database you will require a
 
 >[!TIP]
 >Users proficient with Docker can look further down: MariaDB and Flyway both
->offer container solutions eliviating the need to install either locally.
+>offer container solutions alleviating the need to install either locally.
 >*Note: The usage of docker is too complex to be covered in this document.*
 >Refer to the official documentation of Docker, MariaDB and Flyway.
 
@@ -47,7 +47,7 @@ use the new migration folder and create a new schema history table
 If you set up a new database: Make sure to use the latest migration folder, it
 will contain everything needed to create a "fresh" database.
 
-If you have a existing database: Update to the latest migration in the
+If you have an existing database: Update to the latest migration in the
 migration folder that you have used so far.
 Then switch to the next migration folder (and a new schema version table)
 You should use flyway with `-baselineVersion="1" baseline` instead of the usual
@@ -63,7 +63,7 @@ ones and allow you to focus on the new changes you would like to implement.
 
 First, figure out the changes you need to make. From table alteration and
 creation commands, to simply update and insert statements.
-This is the usual SQL writting for any database.
+This is the usual SQL writing for any database.
 
 Place your `.sql` files in the `SQL/migrate-<highest version>` folder, in a
 valid order of execution. Name the file in the following format:
@@ -73,7 +73,7 @@ Vxxx__Description.sql
 ```
 
 Where `xxx` is the next version number from the last existing file
-(include the 0s) and the descrption is a short description for the migration,
+(include the 0s) and the description is a short description for the migration,
 with spaces replaced by underscores. You can orientate yourself on the already
 existing migrations.
 
@@ -101,7 +101,7 @@ database you like to use on your SQL server instance.
 
 ### Applying newly added migrations
 
-Applying newly added migrations by yourself or others is very simpl.
+Applying newly added migrations by yourself or others is very simple.
 
 Just run the exact same command you ran above, fancy isn't it?
 
@@ -117,7 +117,7 @@ been merged into the master branch.
 >database and empty schema if possible.
 
 The alternative is to make sure your database structure matches the V001 file
-within the migrate folder by manually modifying the structure to avoid dataloss
+within the migrate folder by manually modifying the structure to avoid data loss
 and then doing the steps described below.
 
 If you're using a database since before we moved to Flyway,
@@ -151,7 +151,7 @@ and the settings will be loaded from config.
 
 ### Misc tables
 
-We included a set of miscellanious tables in the misc folder.
+We included a set of miscellaneous tables in the misc folder.
 These are primarily used for debugging and are not meant to be pushed
 into production. As such, they're not included in the migration folder.
 
@@ -170,7 +170,7 @@ Advantages:
 - No installation of additional components.
 - Easy to spin up and remove.
 - Changes are stored in volumes.
-- You can run Flyway and the database seperately and to restart only Flyway.
+- You can run Flyway and the database separately and to restart only Flyway.
 
 ```yaml
 services:
