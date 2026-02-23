@@ -190,7 +190,3 @@ services:
         ports:
         - 3306:3306
 ```
-
-## Attribution
-
-Credit to Mloc from Baystation12 for the initial version of this readme.
