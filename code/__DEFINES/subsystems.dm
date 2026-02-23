@@ -92,9 +92,10 @@
  * see [this file for the LateIntialize proc](atom.html#proc/LateInitialize)
  *
  * It's worth noting that LateInitialize will allow the persistence subsystem to apply content,
- * which might be needed during the objects init process.
+ * which might be needed during the objects init process supplied via Init arguments,
+ * as the init by the persistence subsystems doesn't provide init arguments.
  * Persistence subsystem instanciates object -> LateInit is returned
- * -> Persistence subsystem applies content -> LateInit is called to finish the wholeinit process.
+ * -> Persistence subsystem applies content -> LateInit is called to finish the whole init process.
  */
 #define INITIALIZE_HINT_LATELOAD 1
 
