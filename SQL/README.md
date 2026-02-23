@@ -2,7 +2,7 @@
 
 This subdirectory contains the required SQL files that are needed for setting
 up and updating a SQL database connected to the game. For nearly all
-local development a database isn't necessary, but some of the games features
+local development a database isn't necessary, but some of the game's features
 require it.
 
 Database management and/or development is a whole field on its own. If you have
@@ -33,7 +33,7 @@ In order to develop for the database you will require a
 ### Compacted Migrations
 
 To decrease the runtime of the migration unit test, the database migrations
-will be compacted into a single migration on a regular base. In order to do so,
+will be compacted into a single migration on a regular basis. In order to do so,
 a new `migrate-<year>` subfolder is created.
 The initial migration in these subfolders is always a migration with the current
 db-schema as of the current PR.
@@ -58,7 +58,7 @@ test it first on a non-production copy.
 
 ### Creating migrations
 
-Creating migrations is relatively easy. Migrations are based of the previous
+Creating migrations is relatively easy. Migrations are based on the previous
 ones and allow you to focus on the new changes you would like to implement.
 
 First, figure out the changes you need to make. From table alteration and
@@ -162,15 +162,11 @@ Ignoring or implementing them should not cause issues with the system.
 Docker allows you to setup a database and Flyway without installing additional
 components locally. This setup is for directed at advanced users proficient
 with Linux/Bash and Docker. Provided is a jumpstart example, refer to the
-individual documentation: [MariaDB docker](https://hub.docker.com/_/mariadb) and
+individual documentations: [MariaDB docker](https://hub.docker.com/_/mariadb) and
 [Flyway docker](https://hub.docker.com/r/flyway/flyway/).
 
-Advantages:
-
-- No installation of additional components.
-- Easy to spin up and remove.
-- Changes are stored in volumes.
-- You can run Flyway and the database separately and to restart only Flyway.
+Advantages: No installation of additional components, easy to spin up/remove
+and changes are stored in volumes.
 
 ```yaml
 services:
