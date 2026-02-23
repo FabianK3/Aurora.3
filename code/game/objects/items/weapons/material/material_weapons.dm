@@ -78,6 +78,7 @@
 		if(material.products_need_process())
 			START_PROCESSING(SSprocessing, src)
 		update_force()
+
 		matter = material.get_matter()
 		if(matter.len)
 			for(var/material_type in matter)

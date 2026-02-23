@@ -8,7 +8,7 @@
 	var/image/base_image
 	var/max_butts = 10
 	w_class = WEIGHT_CLASS_TINY
-	persistance_expiration_time_days = 180 // Imagine they get stolen or lost...
+	persistance_expiration_time_days = 180 // Imagine they get stolen, lost or break...
 
 /obj/item/material/ashtray/Initialize(newloc, material_key)
 	. = ..()
@@ -17,13 +17,13 @@
 	update_icon()
 	SSpersistence.register_track(src, null)
 
-/obj/item/material/ashtray/proc/persistence_get_content()
+/obj/item/material/ashtray/persistence_get_content()
 	var/list/content = list()
 	content["fill_count"] = contents.len
 	content["material"] = material.name
 	return content
 
-/obj/item/material/ashtray/proc/persistence_apply_content(content, x, y, z)
+/obj/item/material/ashtray/persistence_apply_content(content, x, y, z)
 	if(content["material"])
 		set_material(content["material"])
 		max_butts = round(material.hardness/10)
