@@ -8,14 +8,32 @@
 	var/image/base_image
 	var/max_butts = 10
 	w_class = WEIGHT_CLASS_TINY
+	persistance_expiration_time_days = 180 // Imagine they get stolen or lost...
 
 /obj/item/material/ashtray/Initialize(newloc, material_key)
 	. = ..()
-	if(!material)
-		return INITIALIZE_HINT_QDEL
 	max_butts = round(material.hardness/10) //This is arbitrary but whatever.
 	randpixel_xy()
 	update_icon()
+	SSpersistence.register_track(src, null)
+
+/obj/item/material/ashtray/proc/persistence_get_content()
+	var/list/content = list()
+	content["fill_count"] = contents.len
+	content["material"] = material.name
+	return content
+
+/obj/item/material/ashtray/proc/persistence_apply_content(content, x, y, z)
+	if(content["material"])
+		set_material(content["material"])
+		max_butts = round(material.hardness/10)
+	var/fill_count = content["fill_count"]
+	if(fill_count)
+		if(fill_count > max_butts)
+			fill_count = max_butts
+		for(var/i = 1; i <= fill_count; i++)
+			var/obj/item/trash/cigbutt/cigarbutt/cigbutt = new /obj/item/trash/cigbutt(src)
+			cigbutt.forceMove(src)
 
 /obj/item/material/ashtray/shatter()
 	..()
@@ -66,6 +84,9 @@
 			return
 		user.remove_from_mob(attacking_item)
 		attacking_item.forceMove(src)
+
+		if(istype(attacking_item, /obj/item/trash/cigbutt))
+			SSpersistence.deregister_track(attacking_item) // Ashtray will handle the persistent contents in it itself
 
 		if (istype(attacking_item,/obj/item/clothing/mask/smokable/cigarette))
 			var/obj/item/clothing/mask/smokable/cigarette/cig = attacking_item
