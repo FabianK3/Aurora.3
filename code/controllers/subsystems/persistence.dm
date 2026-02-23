@@ -37,6 +37,10 @@ SUBSYSTEM_DEF(persistence)
 				var/typepath = text2path(data["type"])
 				if (!ispath(typepath)) // Type checking
 					continue
+				// Note that the object here is instantiated without init args.
+				// Objects that require init args should fall back to INITALIZE_HINT_LATELOAD during Init,
+				// as this will give the subsystem the chance to apply the content and
+				// the object to continue with init logic after the subsystem is done in LateInitialize.
 				var/obj/instance = new typepath()
 				instance.persistence_track_id = data["id"]
 				track_apply_content(instance, data["content"], data["x"], data["y"], data["z"])
