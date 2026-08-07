@@ -480,6 +480,7 @@
 #include "code\datums\datum.dm"
 #include "code\datums\datumvars.dm"
 #include "code\datums\feedback.dm"
+#include "code\datums\hose.dm"
 #include "code\datums\late_choices.dm"
 #include "code\datums\local_network.dm"
 #include "code\datums\mind.dm"

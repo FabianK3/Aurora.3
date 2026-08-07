@@ -165,6 +165,8 @@ GLOBAL_LIST_INIT(debug_verbs, list(
 	,/client/proc/get_bad_fdoors
 	,/client/proc/get_bad_doors
 	,/client/proc/analyze_openturf
+	,/client/proc/cmd_debug_hose_between_atoms
+	,/client/proc/cmd_debug_clear_hose_tests
 	))
 
 

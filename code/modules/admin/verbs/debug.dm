@@ -40,6 +40,83 @@
 			for(var/k in GLOB.config.logsettings)
 				GLOB.config.logsettings[k] = TRUE
 
+/client/var/list/test_hoses = list()
+
+/client/proc/hose_test_limit_callback(datum/hose_visual/hose, atom/movable/mover, atom/attempted_newloc, predicted_distance, max_length_px)
+	if(mover == mob)
+		to_chat(mob, SPAN_WARNING("The hose reaches its maximum length and goes taut."))
+	return COMPONENT_MOVABLE_BLOCK_PRE_MOVE
+
+/client/proc/cmd_debug_hose_between_atoms()
+	set category = "Debug"
+	set name = "Hose Test: Link Atoms"
+	if(!check_rights(R_DEBUG|R_DEV))
+		return
+	if(!mob)
+		return
+
+	var/list/candidates = list()
+	for(var/atom/A in view(mob))
+		if(isturf(A))
+			continue
+		candidates += A
+
+	if(!length(candidates))
+		to_chat(src, SPAN_WARNING("No valid atoms in view."))
+		return
+
+	var/atom/start = input(src, "Pick hose start atom.", "Hose Test") as null|anything in candidates
+	if(!start)
+		return
+
+	var/atom/end = input(src, "Pick hose end atom.", "Hose Test") as null|anything in candidates
+	if(!end)
+		return
+	if(start == end)
+		to_chat(src, SPAN_WARNING("Start and end must be different atoms."))
+		return
+
+	var/max_length_px = input(src, "Max hose length in pixels.", "Hose Test", 160) as num|null
+	if(isnull(max_length_px))
+		return
+	max_length_px = max(1, round(max_length_px))
+
+	var/update_ticks = input(src, "Update interval in ticks (1 = very smooth).", "Hose Test", 1) as num|null
+	if(isnull(update_ticks))
+		return
+	update_ticks = max(1, round(update_ticks))
+
+	var/icon_state = input(src, "Icon state for hose segments.", "Hose Test", "hose") as text|null
+	if(isnull(icon_state))
+		return
+
+	var/segment_length_px = input(src, "Segment sprite length in pixels (default 5).", "Hose Test", 5) as num|null
+	if(isnull(segment_length_px))
+		return
+	segment_length_px = max(1, round(segment_length_px))
+
+	var/datum/callback/limit_cb = CALLBACK(src, PROC_REF(hose_test_limit_callback))
+	var/datum/hose_visual/new_hose = start.Hose(end, icon_state = icon_state, icon = 'icons/effects/beam.dmi', max_length_px = max_length_px, time = -1, hose_sleep_time = update_ticks, limit_callback = limit_cb, segment_length_px = segment_length_px)
+	if(!new_hose)
+		to_chat(src, SPAN_WARNING("Failed to create hose."))
+		return
+
+	test_hoses += new_hose
+	to_chat(src, SPAN_NOTICE("Created hose from [start] to [end] with max length [max_length_px] px."))
+
+/client/proc/cmd_debug_clear_hose_tests()
+	set category = "Debug"
+	set name = "Hose Test: Clear"
+	if(!check_rights(R_DEBUG|R_DEV))
+		return
+
+	for(var/entry in test_hoses)
+		var/datum/hose_visual/hose = entry
+		if(hose)
+			hose.End()
+	test_hoses.Cut()
+	to_chat(src, SPAN_NOTICE("Cleared all hose test visuals."))
+
 // callproc moved to code/modules/admin/callproc
 
 
