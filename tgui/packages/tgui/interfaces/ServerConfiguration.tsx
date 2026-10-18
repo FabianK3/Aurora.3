@@ -152,7 +152,10 @@ export const ServerConfiguration = (props) => {
                 ) : null}
               </LabeledList.Item>
             </LabeledList>
-            <Box mt={1}>The selected time is based on server time, not your time zone.</Box>
+            <Box mt={1} color="yellow">
+              The selected time uses server time, not your time zone.
+              Changes take effect immediately when committed and may trigger a transfer vote or block votes until the next round.
+            </Box>
           </Section>
         )}
       </Window.Content>
