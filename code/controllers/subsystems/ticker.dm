@@ -84,11 +84,27 @@ SUBSYSTEM_DEF(ticker)
 /datum/controller/subsystem/ticker/Initialize(timeofday)
 	pregame()
 	restart_timeout = GLOB.config.restart_timeout
+	set_pinned_round_time(SSregistry.getValue(REGISTRY_PINNED_ROUND_TIME))
 
 	//Initialize the auto-transfer time
 	GLOB.next_transfer_time = GLOB.config.vote_autotransfer_initial
 
 	return SS_INIT_SUCCESS
+
+/datum/controller/subsystem/ticker/proc/set_pinned_round_time(pinned_round_time)
+	if(pinned_round_time == pinned_transfer_setting)
+		return
+	pinned_transfer_setting = pinned_round_time
+	pinned_transfer_target = null
+	pinned_transfer_vote_called = FALSE
+	pinned_shift_change_called = FALSE
+	if(!pinned_round_time)
+		return
+
+	var/pinned_time_of_day = (text2num(copytext(pinned_round_time, 1, 3)) * 60 + text2num(copytext(pinned_round_time, 4, 6))) * 1 MINUTE
+	pinned_transfer_target = REALTIMEOFDAY - world.timeofday + pinned_time_of_day
+	if(pinned_transfer_target <= REALTIMEOFDAY)
+		pinned_transfer_target += 24 HOURS
 
 /datum/controller/subsystem/ticker/stat_entry(msg)
 	var/state = ""
@@ -271,17 +287,7 @@ SUBSYSTEM_DEF(ticker)
 
 	//If we have not finished the game already, call the next transfer vote as scheduled.
 	if(!game_finished && !mode_finished && !post_game)
-		var/pinned_round_time = SSregistry.getValue(REGISTRY_PINNED_ROUND_TIME)
-		if(pinned_round_time)
-			if(pinned_round_time != pinned_transfer_setting)
-				pinned_transfer_setting = pinned_round_time
-				var/pinned_time_of_day = (text2num(copytext(pinned_round_time, 1, 3)) * 60 + text2num(copytext(pinned_round_time, 4, 6))) * 1 MINUTE
-				pinned_transfer_target = REALTIMEOFDAY - world.timeofday + pinned_time_of_day
-				if(pinned_transfer_target <= REALTIMEOFDAY)
-					pinned_transfer_target += 24 HOURS
-				pinned_transfer_vote_called = FALSE
-				pinned_shift_change_called = FALSE
-
+		if(pinned_transfer_setting)
 			var/time_until_pinned = pinned_transfer_target - REALTIMEOFDAY
 			if(time_until_pinned <= 15 MINUTES)
 				if(!pinned_shift_change_called && !SSvote.current_vote && !SSatlas.current_map.shuttle_call_restart_timer && GLOB.evacuation_controller.state == EVAC_IDLE)
@@ -292,10 +298,6 @@ SUBSYSTEM_DEF(ticker)
 					pinned_transfer_vote_called = TRUE
 			if(time_until_pinned <= (2 HOURS + 15 MINUTES))
 				return 1
-		else
-			pinned_transfer_setting = null
-			pinned_transfer_vote_called = FALSE
-			pinned_shift_change_called = FALSE
 		if(get_round_duration() >= GLOB.next_transfer_time - 600)
 			SSvote.autotransfer()
 			GLOB.next_transfer_time += GLOB.config.vote_autotransfer_interval

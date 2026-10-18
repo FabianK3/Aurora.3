@@ -161,6 +161,7 @@
 				if(SSregistry.setValue(REGISTRY_PINNED_ROUND_TIME, selected_pinned_round_time))
 					log_change("Pinned round time changed to [selected_pinned_round_time]")
 					committed_pinned_round_time = selected_pinned_round_time
+					SSticker.set_pinned_round_time(selected_pinned_round_time)
 				else
 					to_chat(ui.user, SPAN_WARNING("Failed to set the pinned round time."))
 			reset_state()
