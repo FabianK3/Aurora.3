@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Box, Button, Section, Stack } from 'tgui-core/components';
 import { isEscape, KEY } from 'tgui-core/keys';
 
@@ -15,6 +15,52 @@ type TimeInputData = {
   title: string;
 };
 
+const HoldButton = ({ icon, onStep }: { icon: string; onStep: () => void }) => {
+  const delay = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const repeat = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const stop = () => {
+    if (delay.current) {
+      clearTimeout(delay.current);
+      delay.current = null;
+    }
+    if (repeat.current) {
+      clearInterval(repeat.current);
+      repeat.current = null;
+    }
+  };
+
+  useEffect(() => stop, []);
+
+  return (
+    <div
+      onPointerCancel={stop}
+      onPointerDown={(event) => {
+        if (event.button !== 0) {
+          return;
+        }
+        stop();
+        onStep();
+        delay.current = setTimeout(() => {
+          repeat.current = setInterval(onStep, 100);
+        }, 350);
+      }}
+      onPointerLeave={stop}
+      onPointerUp={stop}
+    >
+      <Button
+        fluid
+        icon={icon}
+        onClick={(event) => {
+          if (event.type === 'keydown') {
+            onStep();
+          }
+        }}
+      />
+    </div>
+  );
+};
+
 export const TimeInputModal = (props) => {
   const { act, data } = useBackend<TimeInputData>();
   const { default_time = '00:00', large_buttons, message = '', timeout, title } = data;
@@ -27,11 +73,11 @@ export const TimeInputModal = (props) => {
   const windowHeight = 245 + (message.length > 30 ? Math.ceil(message.length / 4) : 0) + (large_buttons ? 5 : 0);
 
   const stepHours = (amount: number) => {
-    setHours(String(((Number(hours) + amount + 24) % 24)).padStart(2, '0'));
+    setHours((value) => String(((Number(value) + amount + 24) % 24)).padStart(2, '0'));
   };
 
   const stepMinutes = (amount: number) => {
-    setMinutes(String(((Number(minutes) + amount + 60) % 60)).padStart(2, '0'));
+    setMinutes((value) => String(((Number(value) + amount + 60) % 60)).padStart(2, '0'));
   };
 
   const clampInput = (value: string, max: number) => {
@@ -71,7 +117,7 @@ export const TimeInputModal = (props) => {
                   <Stack vertical align="center">
                     <Stack.Item><Box color="label">HOUR</Box></Stack.Item>
                     <Stack.Item>
-                      <Button icon="chevron-up" fluid tooltip="Next hour" onClick={() => stepHours(1)} />
+                      <HoldButton icon="chevron-up" onStep={() => stepHours(1)} />
                     </Stack.Item>
                     <Stack.Item>
                       <input
@@ -97,7 +143,7 @@ export const TimeInputModal = (props) => {
                       />
                     </Stack.Item>
                     <Stack.Item>
-                      <Button icon="chevron-down" fluid tooltip="Previous hour" onClick={() => stepHours(-1)} />
+                      <HoldButton icon="chevron-down" onStep={() => stepHours(-1)} />
                     </Stack.Item>
                   </Stack>
                 </Stack.Item>
@@ -106,7 +152,7 @@ export const TimeInputModal = (props) => {
                   <Stack vertical align="center">
                     <Stack.Item><Box color="label">MINUTE</Box></Stack.Item>
                     <Stack.Item>
-                      <Button icon="chevron-up" fluid tooltip="Next minute" onClick={() => stepMinutes(1)} />
+                      <HoldButton icon="chevron-up" onStep={() => stepMinutes(1)} />
                     </Stack.Item>
                     <Stack.Item>
                       <input
@@ -125,7 +171,7 @@ export const TimeInputModal = (props) => {
                       />
                     </Stack.Item>
                     <Stack.Item>
-                      <Button icon="chevron-down" fluid tooltip="Previous minute" onClick={() => stepMinutes(-1)} />
+                      <HoldButton icon="chevron-down" onStep={() => stepMinutes(-1)} />
                     </Stack.Item>
                   </Stack>
                 </Stack.Item>
