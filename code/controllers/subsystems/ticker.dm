@@ -40,6 +40,10 @@ SUBSYSTEM_DEF(ticker)
 	var/pregame_timeleft = 0
 
 	var/delay_end = 0	//if set to nonzero, the round will not restart on it's own
+	var/pinned_transfer_vote_called = FALSE
+	var/pinned_shift_change_called = FALSE
+	var/pinned_transfer_target
+	var/pinned_transfer_setting
 
 	var/triai = 0	//Global holder for Triumvirate
 	var/tipped = FALSE	//Did we broadcast the tip of the day yet?
@@ -123,6 +127,10 @@ SUBSYSTEM_DEF(ticker)
 	pregame_timeleft = SSticker.pregame_timeleft
 
 	delay_end = SSticker.delay_end
+	pinned_transfer_vote_called = SSticker.pinned_transfer_vote_called
+	pinned_shift_change_called = SSticker.pinned_shift_change_called
+	pinned_transfer_target = SSticker.pinned_transfer_target
+	pinned_transfer_setting = SSticker.pinned_transfer_setting
 
 	triai = SSticker.triai
 
@@ -261,8 +269,33 @@ SUBSYSTEM_DEF(ticker)
 			else if(!delay_notified)
 				to_world(SPAN_NOTICE("<b>An admin has delayed the round end</b>"))
 
-	//If we have not finished the game already, and assuming it's time, call the transfer vote as per config
+	//If we have not finished the game already, call the next transfer vote as scheduled.
 	if(!game_finished && !mode_finished && !post_game)
+		var/pinned_round_time = SSregistry.getValue(REGISTRY_PINNED_ROUND_TIME)
+		if(pinned_round_time)
+			if(pinned_round_time != pinned_transfer_setting)
+				pinned_transfer_setting = pinned_round_time
+				var/pinned_time_of_day = (text2num(copytext(pinned_round_time, 1, 3)) * 60 + text2num(copytext(pinned_round_time, 4, 6))) * 1 MINUTE
+				pinned_transfer_target = REALTIMEOFDAY - world.timeofday + pinned_time_of_day
+				if(pinned_transfer_target <= REALTIMEOFDAY)
+					pinned_transfer_target += 24 HOURS
+				pinned_transfer_vote_called = FALSE
+				pinned_shift_change_called = FALSE
+
+			var/time_until_pinned = pinned_transfer_target - REALTIMEOFDAY
+			if(time_until_pinned <= 15 MINUTES)
+				if(!pinned_shift_change_called && !SSvote.current_vote && !SSatlas.current_map.shuttle_call_restart_timer && GLOB.evacuation_controller.state == EVAC_IDLE)
+					pinned_shift_change_called = TRUE
+					init_shift_change(null, TRUE)
+			else if(time_until_pinned <= (2 HOURS + 15 MINUTES))
+				if(!pinned_transfer_vote_called && !SSvote.current_vote && SSvote.autotransfer_pinned())
+					pinned_transfer_vote_called = TRUE
+			if(time_until_pinned <= (2 HOURS + 15 MINUTES))
+				return 1
+		else
+			pinned_transfer_setting = null
+			pinned_transfer_vote_called = FALSE
+			pinned_shift_change_called = FALSE
 		if(get_round_duration() >= GLOB.next_transfer_time - 600)
 			SSvote.autotransfer()
 			GLOB.next_transfer_time += GLOB.config.vote_autotransfer_interval
