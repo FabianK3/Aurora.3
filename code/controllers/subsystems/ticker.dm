@@ -102,7 +102,7 @@ SUBSYSTEM_DEF(ticker)
 		return
 
 	var/pinned_time_of_day = (text2num(copytext(pinned_round_time, 1, 3)) * 60 + text2num(copytext(pinned_round_time, 4, 6))) * 1 MINUTE
-	pinned_transfer_target = REALTIMEOFDAY - world.timeofday + pinned_time_of_day
+	pinned_transfer_target = REALTIMEOFDAY - world.timeofday + pinned_time_of_day - world.timezone HOURS
 	if(pinned_transfer_target <= REALTIMEOFDAY)
 		pinned_transfer_target += 24 HOURS
 
