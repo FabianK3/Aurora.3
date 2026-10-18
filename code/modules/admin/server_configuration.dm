@@ -129,12 +129,8 @@
 			return TRUE
 
 		if("set_pinned_round_time")
-			var/pinned_round_time = tgui_input_text(ui.user, "Enter a time in HH:MM (server time).", "Pinned round time", selected_pinned_round_time || committed_pinned_round_time, max_length = 32)
+			var/pinned_round_time = tgui_input_time(ui.user, "Enter a new time for pinned rounds.", "Pinned round time", selected_pinned_round_time || committed_pinned_round_time)
 			if(isnull(pinned_round_time) || !state.can_use_topic(src, ui.user))
-				return TRUE
-			var/static/regex/pinned_round_time_format = regex(@"^([01][0-9]|2[0-3]):[0-5][0-9]$")
-			if(!pinned_round_time_format.Find(pinned_round_time))
-				to_chat(ui.user, SPAN_WARNING("Invalid pinned round time. Use HH:MM in 24-hour server time."))
 				return TRUE
 			selected_pinned_round_time = pinned_round_time != committed_pinned_round_time ? pinned_round_time : null
 			return TRUE
