@@ -88,6 +88,10 @@
 		return
 
 	switch(action)
+		if("warn_unsaved_changes")
+			if(check_for_unsaved_changes())
+				tgui_alert(ui.user, "Commit or revert your pending changes before switching tabs.", "Unsaved changes", list("OK"))
+			return TRUE
 		if("set_selected_sector")
 			var/list/sector_names = list()
 			for(var/sector_name in SSatlas.possible_sectors)

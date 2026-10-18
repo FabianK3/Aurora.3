@@ -21,6 +21,17 @@ export const ServerConfiguration = (props) => {
   const { act, data } = useBackend<ServerConfigurationData>();
   const [tab, setTab] = useLocalState('tab', 'Sector and lore');
 
+  const changeTab = (nextTab: string) => {
+    if (tab === nextTab) {
+      return;
+    }
+    if (data.unsaved_changes) {
+      act('warn_unsaved_changes');
+      return;
+    }
+    setTab(nextTab);
+  };
+
   return (
     <Window theme="admin" width={600} height={500}>
       <Window.Content scrollable>
@@ -28,13 +39,13 @@ export const ServerConfiguration = (props) => {
           <Tabs>
             <Tabs.Tab
               selected={tab === 'Sector and lore'}
-              onClick={() => setTab('Sector and lore')}
+              onClick={() => changeTab('Sector and lore')}
             >
               Sector and lore
             </Tabs.Tab>
             <Tabs.Tab
               selected={tab === 'Round configuration'}
-              onClick={() => setTab('Round configuration')}
+              onClick={() => changeTab('Round configuration')}
             >
               Round configuration
             </Tabs.Tab>
